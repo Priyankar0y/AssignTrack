@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AssignTrack — Student Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    .role-badge{background:rgba(124,111,255,.15);color:#7c6fff;border:1px solid rgba(124,111,255,.3);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px}
+    .logout-btn{background:rgba(255,107,107,.12);color:#ff6b6b;border:1px solid rgba(255,107,107,.25);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:600;padding:.4rem 1rem;border-radius:20px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{background:rgba(255,107,107,.22)}
+    .welcome-name{font-size:.85rem;color:var(--text-muted)}
+    .student-info-bar{background:rgba(124,111,255,.08);border:1px solid rgba(124,111,255,.2);border-radius:12px;padding:.75rem 1rem;font-size:.85rem;color:var(--text-muted);display:flex;gap:1.5rem;flex-wrap:wrap}
+    .info-item strong{color:var(--text)}
+    .btn-submit{background:rgba(0,229,160,.12);color:#00e5a0;border:1px solid rgba(0,229,160,.25);font-size:.78rem;padding:.45rem .85rem}
+    .btn-submit:hover{background:rgba(0,229,160,.22)}
+    .grade-section{background:rgba(0,229,160,.06);border:1px solid rgba(0,229,160,.2);border-radius:10px;padding:.75rem;margin-top:.5rem}
+    .grade-value{font-size:1.1rem;font-weight:700;color:#00e5a0}
+    .grade-remarks{font-size:.78rem;color:var(--text-muted);margin-top:4px;font-style:italic}
+    .submitted-badge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(0,229,160,.15);color:#00e5a0;border:1px solid rgba(0,229,160,.25)}
+    .late-badge{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,209,102,.15);color:#ffd166;border:1px solid rgba(255,209,102,.25)}
+    .file-name{font-size:.72rem;color:var(--text-muted);margin-top:3px}
+    select option{background:#1a1a3a;color:var(--text)}
+    .subject-stats{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;backdrop-filter:blur(16px);padding:1rem 1.1rem}
+    .subject-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem}
+    .subject-row:last-child{border-bottom:none}
+    .subject-row-count{font-family:'Space Mono',monospace;font-size:.75rem;background:rgba(124,111,255,.15);color:var(--accent);padding:1px 8px;border-radius:20px}
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo"><span class="logo-icon">📚</span><span>AssignTrack</span></div>
+    <div class="header-right">
+      <span class="role-badge">👨‍🎓 Student</span>
+      <span class="welcome-name" id="welcomeName">Welcome!</span>
+      <button class="profile-toggle-btn" onclick="toggleProfile()">
+        <div class="avatar-small" id="headerAvatar">👨‍🎓</div>
+        <span id="headerName">My Profile</span>
+        <span class="arrow-icon" id="profileArrow">›</span>
+      </button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app-wrapper">
+  <main id="mainContent">
+
+    <section class="dashboard">
+      <div class="stat-card total"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total</div></div>
+      <div class="stat-card completed"><div class="stat-number" id="stat-completed">0</div><div class="stat-label">Submitted</div></div>
+      <div class="stat-card pending"><div class="stat-number" id="stat-pending">0</div><div class="stat-label">Pending</div></div>
+    </section>
+
+    <div class="student-info-bar" id="studentInfoBar">
+      <span class="info-item">🏫 Section: <strong id="infoSection">-</strong></span>
+      <span class="info-item">🔢 Roll: <strong id="infoRoll">-</strong></span>
+      <span class="info-item">⭐ CPI: <strong id="infoCpi">-</strong></span>
+      <span class="info-item">📅 <strong id="infoYear">-</strong></span>
+    </div>
+
+    <div style="background:rgba(124,111,255,.08);border:1px solid rgba(124,111,255,.2);border-radius:12px;padding:.75rem 1rem;font-size:.85rem;color:var(--text-muted)">
+      ℹ️ Assignments are uploaded by your faculty. Submit PDF files before the deadline.
+    </div>
+
+    <section class="controls">
+      <input type="text" id="search" placeholder="🔍 Search..." class="search-input"/>
+      <select id="filter" class="filter-select">
+        <option value="all">All</option>
+        <option value="pending">Pending</option>
+        <option value="submitted">Submitted</option>
+      </select>
+      <select id="priorityFilter" class="filter-select">
+        <option value="all">All Priority</option>
+        <option value="high">🔴 High</option>
+        <option value="medium">🟡 Medium</option>
+        <option value="low">🟢 Low</option>
+      </select>
+    </section>
+
+    <div class="section-title">My Assignments</div>
+    <div id="assignments-container"><p class="empty-msg">No assignments yet. Check back later!</p></div>
+
+  </main>
+
+  <!-- PROFILE SIDE PANEL -->
+  <aside class="profile-panel" id="profilePanel">
+    <div class="profile-header">
+      <div class="avatar-upload-wrapper">
+        <div class="avatar-large" id="avatarDisplay">👨‍🎓</div>
+        <label class="avatar-upload-btn" title="Upload photo">
+          📷<input type="file" accept="image/*" id="photoUpload" style="display:none" onchange="handlePhotoUpload(event)"/>
+        </label>
+      </div>
+      <div>
+        <div class="profile-name" id="displayName">Your Name</div>
+        <div class="profile-college" id="displayCollege">College Name</div>
+      </div>
+    </div>
+
+    <div class="perf-badge" id="perfBadge">
+      <span class="badge-icon" id="badgeIcon">🚀</span>
+      <span class="badge-label" id="badgeLabel">Getting Started</span>
+    </div>
+
+    <div class="quote-card">
+      <div class="quote-text" id="quoteText">"The secret of getting ahead is getting started."</div>
+      <div class="quote-author" id="quoteAuthor">— Mark Twain</div>
+      <button class="quote-refresh" onclick="refreshQuote()">↻</button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">Overall Progress</span>
+        <span class="progress-percent" id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="subject-stats" id="subjectStats">
+      <div class="section-title" style="margin-bottom:.6rem">Subject Breakdown</div>
+      <div id="subjectList"><p style="color:var(--text-dim);font-size:.82rem">No assignments yet</p></div>
+    </div>
+
+    <div class="last-activity"><span>🕐</span><span id="lastActivity">No activity yet</span></div>
+
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <div class="section-title">🎨 Choose Theme</div>
+      <div class="theme-grid">
+        <button class="theme-btn active" id="theme-dark" onclick="setTheme('dark')">
+          <div class="theme-preview tp-dark"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌌 Dark</span>
+        </button>
+        <button class="theme-btn" id="theme-sunset" onclick="setTheme('sunset')">
+          <div class="theme-preview tp-sunset"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌅 Sunset</span>
+        </button>
+        <button class="theme-btn" id="theme-pastel" onclick="setTheme('pastel')">
+          <div class="theme-preview tp-pastel"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌸 Pastel</span>
+        </button>
+        <button class="theme-btn" id="theme-ocean" onclick="setTheme('ocean')">
+          <div class="theme-preview tp-ocean"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌊 Ocean</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="edit-profile">
+      <div class="section-title" style="margin-bottom:.75rem">✏️ My Details</div>
+      <input type="text"   id="inputName"    placeholder="Full name"         class="profile-input"/>
+      <input type="email"  id="inputEmail"   placeholder="Email"             class="profile-input" readonly style="opacity:.6"/>
+      <input type="text"   id="inputBranch"  placeholder="Branch (e.g. CSE)" class="profile-input"/>
+      <input type="text"   id="inputYear"    placeholder="Year (e.g. 2nd)"   class="profile-input"/>
+      <input type="text"   id="inputSection" placeholder="Section (e.g. A)"  class="profile-input"/>
+      <input type="text"   id="inputRoll"    placeholder="Roll Number"        class="profile-input"/>
+      <input type="number" id="inputCpi"     placeholder="CPI/CGPA"          class="profile-input" step="0.01" min="0" max="10"/>
+      <button class="btn-save" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Submit Modal -->
+<div class="modal-overlay" id="submitModal" onclick="closeSubmitModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="submitModalTitle">Submit Assignment</div>
+      <button class="modal-close" onclick="closeSubmitModalDirect()">✕</button>
+    </div>
+    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:1rem">Upload your assignment as PDF (max 10MB)</p>
+    <div style="border:2px dashed var(--glass-border);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer" onclick="document.getElementById('fileInput').click()">
+      <div style="font-size:2rem;margin-bottom:.5rem">📎</div>
+      <div style="font-size:.88rem;color:var(--text-muted)">Click to select PDF file</div>
+      <div style="font-size:.75rem;color:var(--dim);margin-top:.25rem">Only PDF, max 10MB</div>
+      <input type="file" id="fileInput" accept=".pdf" style="display:none" onchange="fileSelected(this)"/>
+    </div>
+    <div id="selectedFile" style="margin-top:.75rem;font-size:.82rem;color:var(--green);display:none"></div>
+    <div class="modal-footer" style="margin-top:1rem">
+      <button class="btn btn-add" onclick="submitAssignment()">📤 Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="profile.js"></script>
+<script src="student.js"></script>
+<script>
+  window.addEventListener("DOMContentLoaded", () => { initProfile(); });
+</script>
+</body>
+</html>

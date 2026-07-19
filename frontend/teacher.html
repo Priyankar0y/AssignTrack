@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AssignTrack — Faculty Dashboard</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    .role-badge{background:rgba(255,209,102,.15);color:#ffd166;border:1px solid rgba(255,209,102,.3);font-size:.75rem;font-weight:700;padding:3px 10px;border-radius:20px}
+    .logout-btn{background:rgba(255,107,107,.12);color:#ff6b6b;border:1px solid rgba(255,107,107,.25);font-family:'Plus Jakarta Sans',sans-serif;font-size:.82rem;font-weight:600;padding:.4rem 1rem;border-radius:20px;cursor:pointer;transition:all .2s}
+    .logout-btn:hover{background:rgba(255,107,107,.22)}
+    .nav-tabs{display:flex;gap:.5rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .nav-tab{padding:.55rem 1.1rem;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;color:var(--text-muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+    .nav-tab.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .section-panel{display:none}
+    .section-panel.active{display:block}
+    .tracker-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--glass-border)}
+    .tracker-table{width:100%;border-collapse:collapse;font-size:.82rem}
+    .tracker-table th{padding:.65rem 1rem;background:rgba(124,111,255,.15);color:var(--accent);font-weight:700;text-align:left;white-space:nowrap}
+    .tracker-table td{padding:.6rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);color:var(--text);white-space:nowrap}
+    .tracker-table tr:last-child td{border-bottom:none}
+    .tracker-table tr:hover td{background:rgba(255,255,255,.03)}
+    .sub-pill{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px}
+    .sub-submitted{background:rgba(0,229,160,.15);color:#00e5a0;border:1px solid rgba(0,229,160,.25)}
+    .sub-pending{background:rgba(255,107,107,.12);color:#ff6b6b;border:1px solid rgba(255,107,107,.2)}
+    .sub-late{background:rgba(255,209,102,.15);color:#ffd166;border:1px solid rgba(255,209,102,.25)}
+    .section-group{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;margin-bottom:1rem;overflow:hidden}
+    .section-head{padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;background:rgba(124,111,255,.08);border-bottom:1px solid var(--glass-border)}
+    .section-head-title{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
+    .section-stats{display:flex;gap:1rem;font-size:.78rem;color:var(--text-muted)}
+    .section-body{padding:1rem}
+    .filter-bar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem}
+    .filter-bar select,.filter-bar input{font-size:.82rem;padding:.45rem .8rem;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:8px;color:var(--text);outline:none}
+    .filter-bar select:focus,.filter-bar input:focus{border-color:var(--accent)}
+    .grade-input{width:100%;padding:.6rem .9rem;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;outline:none;margin-bottom:.6rem}
+    .grade-input:focus{border-color:var(--accent)}
+    .cpi-badge{font-size:.7rem;padding:1px 7px;border-radius:20px;background:rgba(79,200,255,.12);color:#4fc8ff;border:1px solid rgba(79,200,255,.2)}
+    .progress-mini{height:4px;background:rgba(255,255,255,.08);border-radius:4px;margin-top:4px;overflow:hidden}
+    .progress-mini-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .5s}
+    .section-tag{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(124,111,255,.15);color:var(--accent);border:1px solid rgba(124,111,255,.25)}
+    .welcome-name{font-size:.85rem;color:var(--text-muted)}
+    select option{background:#1a1a3a;color:var(--text)}
+    .student-row-name{font-weight:600}
+  </style>
+</head>
+<body>
+<header>
+  <div class="header-inner">
+    <div class="logo"><span class="logo-icon">📚</span><span>AssignTrack</span></div>
+    <div class="header-right">
+      <span class="role-badge">👩‍🏫 Faculty</span>
+      <span class="welcome-name" id="welcomeName">Welcome!</span>
+      <button class="profile-toggle-btn" onclick="toggleProfile()">
+        <div class="avatar-small" id="headerAvatar">👩‍🏫</div>
+        <span id="headerName">My Profile</span>
+        <span class="arrow-icon" id="profileArrow">›</span>
+      </button>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </div>
+</header>
+
+<div class="app-wrapper">
+  <main id="mainContent">
+
+    <section class="dashboard">
+      <div class="stat-card total"><div class="stat-number" id="stat-total">0</div><div class="stat-label">Total Assignments</div></div>
+      <div class="stat-card completed"><div class="stat-number" id="stat-students">0</div><div class="stat-label">Total Students</div></div>
+      <div class="stat-card pending"><div class="stat-number" id="stat-sections">0</div><div class="stat-label">Sections</div></div>
+    </section>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showPanel('assignments')">📋 Assignments</button>
+      <button class="nav-tab" onclick="showPanel('sections')">🏫 Sections</button>
+      <button class="nav-tab" onclick="showPanel('tracker')">📊 Submission Tracker</button>
+    </div>
+
+    <!-- ASSIGNMENTS PANEL -->
+    <div class="section-panel active" id="panel-assignments">
+      <div class="form-section">
+        <div class="section-title">📤 Upload Assignment</div>
+        <form id="assignment-form">
+          <div class="form-row">
+            <input type="text" id="title" placeholder="Assignment title" required/>
+            <input type="text" id="subject" placeholder="Subject" required/>
+            <input type="date" id="deadline" required/>
+            <select id="priority" class="priority-select">
+              <option value="high">🔴 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+            <button type="submit" class="btn btn-add">+ Upload</button>
+          </div>
+          <div class="form-row-2" style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.6rem">
+            <input type="text" id="notes" placeholder="📝 Instructions (optional)"/>
+            <select id="targetSection" onchange="toggleCustomSection()">
+              <option value="">📢 All Sections</option>
+              <option value="A">Section A</option>
+              <option value="B">Section B</option>
+              <option value="C">Section C</option>
+              <option value="D">Section D</option>
+              <option value="other">✍ Other (Type Manually)</option>
+            </select>
+
+        <input
+            type="text"
+            id="customSection"
+            placeholder="Enter Section Name"
+            style="display:none;margin-top:10px;"
+        >
+          </div>
+        </form>
+      </div>
+      <div class="controls">
+        <input type="text" id="search" placeholder="🔍 Search..." class="search-input"/>
+        <select id="filter" class="filter-select">
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="submitted">Submitted</option>
+        </select>
+        <select id="priorityFilter" class="filter-select">
+          <option value="all">All Priority</option>
+          <option value="high">🔴 High</option>
+          <option value="medium">🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+      <div class="section-title" style="margin-top:.5rem">All Assignments</div>
+      <div id="assignments-container"><p class="empty-msg">No assignments yet. Upload one above!</p></div>
+    </div>
+
+    <!-- SECTIONS PANEL -->
+    <div class="section-panel" id="panel-sections">
+      <div class="filter-bar">
+        <select id="sectionFilter" onchange="loadSections()"><option value="">All Sections</option></select>
+        <select id="sortStudents" onchange="loadSections()">
+          <option value="">Sort: Default</option>
+          <option value="cpi_desc">CPI: High→Low</option>
+          <option value="cpi_asc">CPI: Low→High</option>
+          <option value="name_asc">Name: A-Z</option>
+          <option value="submitted_desc">Most Submitted</option>
+        </select>
+        <input type="number" id="minCpi" placeholder="Min CPI" style="width:90px" onchange="loadSections()"/>
+        <input type="number" id="maxCpi" placeholder="Max CPI" style="width:90px" onchange="loadSections()"/>
+      </div>
+      <div id="sectionsContainer"><p class="empty-msg">Loading...</p></div>
+    </div>
+
+    <!-- TRACKER PANEL -->
+    <div class="section-panel" id="panel-tracker">
+      <div class="filter-bar">
+        <select id="trackerSection" onchange="loadTracker()"><option value="">All Sections</option></select>
+      </div>
+      <div id="trackerContainer"><p class="empty-msg">Loading...</p></div>
+    </div>
+
+  </main>
+
+  <!-- PROFILE SIDE PANEL -->
+  <aside class="profile-panel" id="profilePanel">
+    <div class="profile-header">
+      <div class="avatar-upload-wrapper">
+        <div class="avatar-large" id="avatarDisplay">👩‍🏫</div>
+        <label class="avatar-upload-btn" title="Upload photo">
+          📷<input type="file" accept="image/*" id="photoUpload" style="display:none" onchange="handlePhotoUpload(event)"/>
+        </label>
+      </div>
+      <div>
+        <div class="profile-name" id="displayName">Your Name</div>
+        <div class="profile-college" id="displayCollege">Faculty</div>
+      </div>
+    </div>
+
+    <div class="perf-badge" id="perfBadge">
+      <span class="badge-icon" id="badgeIcon">🏫</span>
+      <span class="badge-label" id="badgeLabel">Faculty Member</span>
+    </div>
+
+    <div class="quote-card">
+      <div class="quote-text" id="quoteText">"The secret of getting ahead is getting started."</div>
+      <div class="quote-author" id="quoteAuthor">— Mark Twain</div>
+      <button class="quote-refresh" onclick="refreshQuote()">↻</button>
+    </div>
+
+    <div class="progress-section">
+      <div class="progress-header">
+        <span class="progress-label">Assignments Uploaded</span>
+        <span class="progress-percent" id="progressPercent">0</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="last-activity"><span>🕐</span><span id="lastActivity">No activity yet</span></div>
+
+    <!-- Theme Switcher -->
+    <div class="theme-switcher">
+      <div class="section-title">🎨 Choose Theme</div>
+      <div class="theme-grid">
+        <button class="theme-btn active" id="theme-dark" onclick="setTheme('dark')">
+          <div class="theme-preview tp-dark"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌌 Dark</span>
+        </button>
+        <button class="theme-btn" id="theme-sunset" onclick="setTheme('sunset')">
+          <div class="theme-preview tp-sunset"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌅 Sunset</span>
+        </button>
+        <button class="theme-btn" id="theme-pastel" onclick="setTheme('pastel')">
+          <div class="theme-preview tp-pastel"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌸 Pastel</span>
+        </button>
+        <button class="theme-btn" id="theme-ocean" onclick="setTheme('ocean')">
+          <div class="theme-preview tp-ocean"><div class="tp-bar"></div><div class="tp-body"><div class="tp-card"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+          <span class="theme-name">🌊 Ocean</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Edit Profile -->
+    <div class="edit-profile">
+      <div class="section-title" style="margin-bottom:.75rem">✏️ My Details</div>
+      <input type="text"  id="inputName"       placeholder="Full name"        class="profile-input"/>
+      <input type="email" id="inputEmail"      placeholder="Email"            class="profile-input" readonly style="opacity:.6"/>
+      <input type="text"  id="inputBranch"     placeholder="Department"       class="profile-input"/>
+      <input type="text"  id="inputYear"       placeholder="Designation"      class="profile-input"/>
+      <input type="text"  id="inputUsername"   placeholder="Username"         class="profile-input" readonly style="opacity:.6"/>
+      <button class="btn-save" onclick="saveProfile()">💾 Save Profile</button>
+    </div>
+  </aside>
+</div>
+
+<!-- Student Details Modal -->
+<div class="modal-overlay" id="studentModal" onclick="closeStudentModal(event)">
+  <div class="modal-box" style="max-width:600px;max-height:85vh;overflow-y:auto">
+    <div class="modal-header">
+      <div class="modal-title" id="studentModalTitle">Student Details</div>
+      <button class="modal-close" onclick="closeStudentModalDirect()">✕</button>
+    </div>
+
+    <!-- Student Info -->
+    <div id="studentModalContent">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem" id="studentInfoGrid"></div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:1rem" id="studentStatsGrid"></div>
+
+      <!-- Progress Bar -->
+      <div style="margin-bottom:1.25rem">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;color:var(--text-muted);margin-bottom:.4rem">
+          <span>Submission Progress</span>
+          <span id="studentProgressPct" style="color:var(--accent);font-weight:700">0%</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" id="studentProgressFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Assignment List -->
+      <div class="section-title" style="margin-bottom:.6rem" id="subjectLabel">Assignment Submissions</div>
+      <div id="studentAssignmentList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Grade Modal -->
+<div class="modal-overlay" id="gradeModal" onclick="closeGradeModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title" id="gradeModalTitle">Give Grade</div>
+      <button class="modal-close" onclick="closeGradeModalDirect()">✕</button>
+    </div>
+    <p style="font-size:.82rem;color:var(--text-muted);margin-bottom:.75rem" id="gradeStudentName"></p>
+    <label style="font-size:.78rem;color:var(--text-muted);display:block;margin-bottom:.3rem">Grade</label>
+    <input class="grade-input" id="gradeInput" placeholder="e.g. A+, 85/100, 8.5"/>
+    <label style="font-size:.78rem;color:var(--text-muted);display:block;margin-bottom:.3rem">Remarks</label>
+    <textarea class="modal-textarea" id="remarksInput" placeholder="Write feedback..." style="min-height:80px"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-add" onclick="submitGrade()">💾 Save Grade</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="profile.js"></script>
+<script src="teacher.js"></script>
+<script>
+  // Init profile on load
+  window.addEventListener("DOMContentLoaded", () => { initProfile(); });
+</script>
+</body>
+</html>

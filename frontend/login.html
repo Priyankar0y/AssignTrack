@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AssignTrack — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root{--bg:#0a0a1a;--accent:#7c6fff;--accent2:#ff6fb0;--green:#00e5a0;--text:#f0eeff;--muted:#8884aa;--dim:#5a5880;--border:rgba(255,255,255,0.1);--error:#ff6b6b}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+    body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+    body::before{width:400px;height:400px;background:radial-gradient(circle,rgba(124,111,255,0.2) 0%,transparent 70%);top:-100px;left:-100px}
+    body::after{width:300px;height:300px;background:radial-gradient(circle,rgba(255,111,176,0.15) 0%,transparent 70%);bottom:-100px;right:-100px}
+    .wrapper{position:relative;z-index:1;width:100%;max-width:460px;padding-bottom:2rem}
+    .logo{text-align:center;margin-bottom:1.2rem;padding-top:.5rem}
+    .logo-icon{font-size:2rem;display:block;margin-bottom:.3rem}
+    .logo-name{font-size:1.6rem;font-weight:800;background:linear-gradient(135deg,#7c6fff,#ff6fb0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .logo-tag{font-size:.78rem;color:var(--muted);margin-top:2px}
+    .card{background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:20px;backdrop-filter:blur(20px);padding:1.5rem}
+    .role-slider{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:1.2rem;position:relative}
+    .role-btn{flex:1;padding:.5rem;border:none;background:transparent;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;border-radius:9px;transition:all .25s;z-index:1;display:flex;align-items:center;justify-content:center;gap:.4rem}
+    .role-btn.active{color:white}
+    .slider-bg{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);background:linear-gradient(135deg,var(--accent),#9b8fff);border-radius:9px;transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 15px rgba(124,111,255,.4)}
+    .slider-bg.right{transform:translateX(calc(100%))}
+    .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:1rem}
+    .tab{flex:1;padding:.55rem;background:none;border:none;color:var(--muted);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.3rem;margin-top:.7rem}
+    .input{width:100%;padding:.58rem .9rem;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;outline:none;transition:border-color .2s}
+    .input:focus{border-color:var(--accent)}
+    .input::placeholder{color:var(--dim)}
+    select.input option{background:#1a1a3a;color:var(--text)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem}
+    .btn{width:100%;padding:.7rem;background:linear-gradient(135deg,var(--accent),#9b8fff);border:none;border-radius:10px;color:white;font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;margin-top:.9rem;box-shadow:0 4px 20px rgba(124,111,255,.35)}
+    .btn:hover{filter:brightness(1.1);transform:translateY(-1px)}
+    .msg{font-size:.8rem;padding:.5rem .8rem;border-radius:8px;margin-top:.6rem;display:none}
+    .msg.error{background:rgba(255,107,107,.12);color:var(--error);border:1px solid rgba(255,107,107,.25)}
+    .msg.success{background:rgba(0,229,160,.12);color:var(--green);border:1px solid rgba(0,229,160,.25)}
+    .msg.show{display:block}
+    .hint{margin-top:.9rem;padding:.65rem .9rem;background:rgba(124,111,255,.08);border:1px solid rgba(124,111,255,.2);border-radius:10px;font-size:.75rem;color:var(--muted)}
+    .hint strong{color:var(--accent)}
+    .extra-fields{display:none}
+    .student-extra{display:none}
+    .forgot-link{display:block;text-align:right;font-size:.76rem;color:var(--accent);margin-top:.5rem;cursor:pointer;text-decoration:none}
+    .forgot-link:hover{text-decoration:underline}
+    .forgot-panel{display:none;margin-top:.8rem;padding-top:.8rem;border-top:1px solid var(--border)}
+    .forgot-panel.open{display:block}
+    .back-link{font-size:.76rem;color:var(--muted);cursor:pointer;margin-top:.6rem;display:inline-block}
+    .back-link:hover{color:var(--accent)}
+  </style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="logo">
+    <span class="logo-icon">📚</span>
+    <div class="logo-name">AssignTrack</div>
+    <div class="logo-tag">Student Assignment Management System</div>
+  </div>
+  <div class="card">
+    <div class="role-slider">
+      <div class="slider-bg" id="sliderBg"></div>
+      <button class="role-btn active" id="btnStudent" onclick="setRole('student')">👨‍🎓 Student</button>
+      <button class="role-btn" id="btnFaculty" onclick="setRole('faculty')">👩‍🏫 Faculty</button>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('login')">Login</button>
+      <button class="tab" onclick="setTab('register')">Register</button>
+    </div>
+
+    <div class="extra-fields" id="extraFields">
+      <label class="label">Full Name</label>
+      <input class="input" id="name" type="text" placeholder="Your full name"/>
+      <label class="label">Email</label>
+      <input class="input" id="email" type="email" placeholder="your@email.com"/>
+
+      <div class="student-extra" id="studentExtra">
+        <div class="row">
+          <div>
+            <label class="label">Section</label>
+            <select class="input" id="section" onchange="toggleCustomField('section')">
+              <option value="">Select</option>
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="other">✍ Other (Type Manually)</option>
+            </select>
+            <input class="input" id="customSection" placeholder="Enter your section" style="display:none;margin-top:.5rem"/>
+          </div>
+          <div>
+            <label class="label">CPI/CGPA</label>
+            <input class="input" id="cpi" type="number" step="0.01" min="0" max="10" placeholder="e.g. 8.5"/>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label class="label">Roll Number</label>
+            <input class="input" id="rollNumber" placeholder="e.g. 22CS001"/>
+          </div>
+          <div>
+            <label class="label">Year</label>
+            <select class="input" id="year" onchange="toggleCustomField('year')">
+              <option value="">Select</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="5th Year">5th Year</option>
+              <option value="other">✍ Other (Type Manually)</option>
+            </select>
+            <input class="input" id="customYear" placeholder="Enter your year" style="display:none;margin-top:.5rem"/>
+          </div>
+        </div>
+        <label class="label">Semester</label>
+        <select class="input" id="semester">
+          <option value="">Select</option>
+          <option value="Sem 1">Sem 1</option>
+          <option value="Sem 2">Sem 2</option>
+          <option value="Sem 3">Sem 3</option>
+          <option value="Sem 4">Sem 4</option>
+          <option value="Sem 5">Sem 5</option>
+          <option value="Sem 6">Sem 6</option>
+          <option value="Sem 7">Sem 7</option>
+          <option value="Sem 8">Sem 8</option>
+        </select>
+        <label class="label">Branch</label>
+        <input class="input" id="branch" placeholder="e.g. B.Tech CSE"/>
+        <div id="facultyExtra" style="display:none">
+          <label class="label">Subject You Teach</label>
+          <input class="input" id="subject" placeholder="e.g. Mathematics, CS, Physics"/>
+        </div>
+      </div>
+    </div>
+
+    <label class="label">Username</label>
+    <input class="input" id="username" type="text" placeholder="Enter username"/>
+    <label class="label">Password</label>
+    <input class="input" id="password" type="password" placeholder="Enter password"/>
+    <a class="forgot-link" id="forgotLink" onclick="toggleForgotPanel()">Forgot password?</a>
+
+    <button class="btn" id="submitBtn" onclick="handleSubmit()">Login →</button>
+    <div class="msg" id="msg"></div>
+    <div class="hint" id="hint">
+      <strong>Demo:</strong> Register as student or faculty to get started!
+    </div>
+
+    <!-- Forgot Password Panel -->
+    <div class="forgot-panel" id="forgotPanel">
+      <label class="label">Enter your registered email</label>
+      <input class="input" id="forgotEmail" type="email" placeholder="your@email.com"/>
+      <button class="btn" onclick="handleForgotPassword()">Send Reset Link →</button>
+      <span class="back-link" onclick="toggleForgotPanel()">← Back to login</span>
+      <div class="msg" id="forgotMsg"></div>
+    </div>
+  </div>
+</div>
+<script>
+  let role = "student", tab = "login";
+
+  function setRole(r) {
+    role = r;
+    document.getElementById("sliderBg").classList.toggle("right", r==="faculty");
+    document.getElementById("btnStudent").classList.toggle("active", r==="student");
+    document.getElementById("btnFaculty").classList.toggle("active", r==="faculty");
+    if(tab==="register") {
+      document.getElementById("studentExtra").style.display = r==="student" ? "block" : "none";
+      document.getElementById("facultyExtra").style.display = r==="faculty" ? "block" : "none";
+    }
+  }
+
+  function setTab(t) {
+    tab = t;
+    document.querySelectorAll(".tab").forEach((el,i) => el.classList.toggle("active",(i===0&&t==="login")||(i===1&&t==="register")));
+    document.getElementById("extraFields").style.display = t==="register" ? "block" : "none";
+    document.getElementById("studentExtra").style.display = (t==="register"&&role==="student") ? "block" : "none";
+    document.getElementById("hint").style.display = t==="login" ? "block" : "none";
+    document.getElementById("forgotLink").style.display = t==="login" ? "block" : "none";
+    document.getElementById("forgotPanel").classList.remove("open");
+    document.getElementById("submitBtn").textContent = t==="login" ? "Login →" : "Register →";
+    clearMsg();
+  }
+
+  function toggleForgotPanel() {
+    document.getElementById("forgotPanel").classList.toggle("open");
+  }
+
+  // ── Manual "Other" entry for Section / Year ──
+  // Shows/hides the free-text field next to a select when "Other" is chosen,
+  // so a student whose section (e.g. AB, AC) or year isn't in the list can type it.
+  function toggleCustomField(kind) {
+    const select = document.getElementById(kind);          // "section" or "year"
+    const custom = document.getElementById("custom" + kind.charAt(0).toUpperCase() + kind.slice(1)); // "customSection" / "customYear"
+    if (!select || !custom) return;
+    if (select.value === "other") {
+      custom.style.display = "block";
+      custom.focus();
+    } else {
+      custom.style.display = "none";
+      custom.value = "";
+    }
+  }
+
+  // Resolves the final value for a select+custom-input pair,
+  // preferring the manually typed value when "Other" is selected.
+  function resolveField(kind) {
+    const select = document.getElementById(kind);
+    if (!select) return "";
+    if (select.value === "other") {
+      const custom = document.getElementById("custom" + kind.charAt(0).toUpperCase() + kind.slice(1));
+      return custom ? custom.value.trim() : "";
+    }
+    return select.value;
+  }
+
+  async function handleForgotPassword() {
+    const email = document.getElementById("forgotEmail").value.trim();
+    if (!email) { showForgotMsg("Enter your email.", "error"); return; }
+    const res = await fetch("/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    showForgotMsg(data.message || data.error, res.ok ? "success" : "error");
+  }
+
+  function showForgotMsg(t, type) {
+    const el = document.getElementById("forgotMsg");
+    el.textContent = t;
+    el.className = `msg ${type} show`;
+  }
+
+  async function handleSubmit() {
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value.trim();
+    if(!username||!password){showMsg("Fill all fields.","error");return;}
+
+    if(tab==="register"){
+      const name  = document.getElementById("name").value.trim();
+      const email = document.getElementById("email").value.trim();
+      if(!name||!email){showMsg("Name and email required.","error");return;}
+
+      const section = resolveField("section");
+      const year    = resolveField("year");
+      if (role === "student") {
+        if (document.getElementById("section").value === "other" && !section) { showMsg("Please type your section.","error"); return; }
+        if (document.getElementById("year").value === "other" && !year) { showMsg("Please type your year.","error"); return; }
+      }
+
+      const body = {
+        name, username, email, password, role,
+        section,
+        cpi:        document.getElementById("cpi")?.value || 0,
+        rollNumber: document.getElementById("rollNumber")?.value || "",
+        year,
+        semester:   document.getElementById("semester")?.value || "",
+        branch:     document.getElementById("branch")?.value || "",
+        subject:    document.getElementById("subject")?.value || ""
+      };
+      const res  = await fetch("/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+      const data = await res.json();
+      if(!res.ok){showMsg(data.error,"error");return;}
+      showMsg("Registered! Please login.","success");
+      setTab("login");
+      return;
+    }
+
+    const res  = await fetch("/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username,password})});
+    const data = await res.json();
+    if(!res.ok){showMsg(data.error,"error");return;}
+    showMsg("Login successful! Redirecting...","success");
+    setTimeout(()=>{ window.location.href = data.user.role==="faculty" ? "/teacher.html" : "/student.html"; },700);
+  }
+
+  function showMsg(t,type){const el=document.getElementById("msg");el.textContent=t;el.className=`msg ${type} show`;}
+  function clearMsg(){document.getElementById("msg").className="msg";}
+  document.addEventListener("keydown",e=>{if(e.key==="Enter"&&!document.getElementById("forgotPanel").classList.contains("open"))handleSubmit();});
+</script>
+</body>
+</html>
