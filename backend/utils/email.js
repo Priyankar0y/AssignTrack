@@ -28,31 +28,25 @@ function escapeHtml(str) {
 }
 
 // ── New assignment posted ────────────────────
-// assignment.js calls this with an ARRAY of all matching students
-// (User.find(...) returns an array), so this loops and sends one
-// email per student rather than treating the array as a single user.
-async function sendNewAssignmentEmail(users, assignment) {
-  const list = Array.isArray(users) ? users : [users];
-  for (const user of list) {
-    try {
-      await transporter.sendMail({
-        from: `"AssignTrack" <${process.env.EMAIL_USER}>`,
-        to: user.email,
-        subject: `📌 New assignment: ${escapeHtml(assignment.title)}`,
-        html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a1a;color:#f0eeff;padding:30px;border-radius:12px">
-          <h2 style="color:#7c6fff">📌 New Assignment Posted</h2>
-          <p>Hello ${escapeHtml(user.name)},</p>
-          <p style="color:#8884aa">A new assignment has been added${assignment.subject ? ` for <strong>${escapeHtml(assignment.subject)}</strong>` : ""}:</p>
+async function sendNewAssignmentEmail(user, assignment) {
+  try {
+    await transporter.sendMail({
+      from: `"AssignTrack" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: `📌 New assignment: ${escapeHtml(assignment.title)}`,
+      html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0a0a1a;color:#f0eeff;padding:30px;border-radius:12px">
+        <h2 style="color:#7c6fff">📌 New Assignment Posted</h2>
+        <p>Hello ${escapeHtml(user.name)},</p>
+        <p style="color:#8884aa">A new assignment has been added${assignment.courseName ? ` to <strong>${escapeHtml(assignment.courseName)}</strong>` : ""}:</p>
         <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:16px;margin:20px 0">
           <p style="margin:0 0 8px;font-size:16px;font-weight:bold;color:#f0eeff">${escapeHtml(assignment.title)}</p>
-          ${assignment.notes ? `<p style="margin:0 0 8px;color:#8884aa">${escapeHtml(assignment.notes)}</p>` : ""}
-          ${assignment.deadline ? `<p style="margin:0;color:#ff6fb0;font-weight:600">Due: ${new Date(assignment.deadline).toLocaleString()}</p>` : ""}
+          ${assignment.description ? `<p style="margin:0 0 8px;color:#8884aa">${escapeHtml(assignment.description)}</p>` : ""}
+          ${assignment.dueDate ? `<p style="margin:0;color:#ff6fb0;font-weight:600">Due: ${new Date(assignment.dueDate).toLocaleString()}</p>` : ""}
         </div>
         <p style="color:#8884aa;font-size:13px">Log in to AssignTrack to view full details.</p>
       </div>`
-      });
-    } catch (err) { console.error(`New assignment email failed ${user.email}:`, err.message); }
-  }
+    });
+  } catch (err) { console.error(`New assignment email failed ${user.email}:`, err.message); }
 }
 
 // ── Daily digest of pending assignments ──────
