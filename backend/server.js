@@ -25,6 +25,7 @@ const User       = require("./models/user"); // lowercase — matches actual fil
 const Assignment = require("./models/Assignment");
 
 // ── Connect MongoDB ──────────────────────────
+console.log("DEBUG MONGO_URI:", !!process.env.MONGO_URI, process.env.MONGO_URI?.length);
 mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/assigntrack")
   .then(() => console.log("✅ MongoDB connected!"))
   .catch(err => console.error("❌ MongoDB error:", err));
