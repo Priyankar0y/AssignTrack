@@ -52,6 +52,55 @@ router.get("/sections", isAuthenticated, isFaculty, async (req, res) => {
   } catch(err) { res.status(500).json({ error: err.message }); }
 });
 
+// GET /students/:id/details — Teacher clicks on a student's name in
+// Sections/Tracker panels — full profile + subject-wise submission history.
+// (This route was missing — the frontend's openStudentDetails() calls it.)
+router.get("/:id/details", isAuthenticated, isFaculty, async (req, res) => {
+  try {
+    const student = await User.findById(req.params.id).select("-password");
+    if (!student) return res.status(404).json({ error: "Student not found." });
+
+    // Faculty who teach a specific subject only see that subject's assignments
+    const teacherSubject = req.session.user.subject || null;
+    const assignments = await Assignment.find();
+    const relevantAssignments = teacherSubject
+      ? assignments.filter(a => a.subject.toLowerCase() === teacherSubject.toLowerCase())
+      : assignments;
+
+    const submissionDetails = relevantAssignments.map(a => {
+      const sub = a.submissions.find(s => s.student.toString() === student._id.toString());
+      return {
+        assignmentId:    a._id,
+        assignmentTitle: a.title,
+        subject:         a.subject,
+        deadline:        a.deadline,
+        priority:        a.priority,
+        status:          sub ? sub.status      : "pending",
+        submittedAt:     sub ? sub.submittedAt : null,
+        fileName:        sub ? sub.fileName    : null,
+        grade:           sub ? sub.grade       : null,
+        remarks:         sub ? sub.remarks     : null,
+      };
+    });
+
+    const totalAssignments = relevantAssignments.length;
+    const submitted = submissionDetails.filter(s => s.status !== "pending").length;
+    const pending   = totalAssignments - submitted;
+
+    res.json({
+      student,
+      submissionDetails,
+      stats: {
+        total:     totalAssignments,
+        submitted,
+        pending,
+        percentage: totalAssignments ? Math.round((submitted/totalAssignments)*100) : 0
+      },
+      teacherSubject
+    });
+  } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
 // GET /students/tracker
 router.get("/tracker", isAuthenticated, isFaculty, async (req, res) => {
   try {
